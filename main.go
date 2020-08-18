@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 const stubLength = 6
@@ -33,16 +34,7 @@ type Entry struct {
 
 var entries map[string]string
 
-func setupHeaders(writer *http.ResponseWriter) {
-	(*writer).Header().Set("Access-Control-Allow-Origin", "*")
-	(*writer).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	(*writer).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-	(*writer).Header().Add("Content-Type", "application/json")
-}
-
 func newShortUrl(writer http.ResponseWriter, req *http.Request) {
-	setupHeaders(&writer)
-
 	var entry Entry
 	err := json.NewDecoder(req.Body).Decode(&entry)
 	if err != nil {
@@ -55,17 +47,17 @@ func newShortUrl(writer http.ResponseWriter, req *http.Request) {
 
 	entries[entry.Stub] = entry.Url
 
+	writer.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(entry)
 }
 
 func getShortUrl(writer http.ResponseWriter, req *http.Request) {
-	setupHeaders(&writer)
-
 	var entry Entry
 	entry.Stub = mux.Vars(req)["stub"]
 
 	entry.Url = entries[entry.Stub]
 
+	writer.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(entry)
 }
 
@@ -90,6 +82,9 @@ func main() {
 	router.HandleFunc("/api/shorten/{stub}", getShortUrl).Methods("GET")
 	log.Println("[+] GET: /api/shorten/{stub}")
 
+	log.Println("Wrapping Router with CORS Handler")
+	handler := cors.Default().Handler(router)
+
 	log.Printf("Starting server on %s\n", port)
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
