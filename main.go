@@ -85,7 +85,7 @@ func main() {
 
 	log.Println("Wrapping Router with CORS Handler")
 	wrapper := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:8000"},
+		AllowedOrigins: []string{"https://url-shortener-kohl.vercel.app/"},
 		AllowedHeaders: []string{"Content-Type", "Accept-Encoding", "Accept-Language", "DNT"},
 		Debug:          true,
 	})
