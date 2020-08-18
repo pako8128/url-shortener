@@ -83,7 +83,10 @@ func main() {
 	log.Println("[+] GET: /api/shorten/{stub}")
 
 	log.Println("Wrapping Router with CORS Handler")
-	handler := cors.Default().Handler(router)
+	wrapper := cors.New(cors.Options{
+		AllowedHeaders: []string{"Content-Type", "Accept-Encoding", "Accept-Language", "DNT"},
+	})
+	handler := wrapper.Handler(router)
 
 	log.Printf("Starting server on %s\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, handler))
