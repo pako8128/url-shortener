@@ -56,7 +56,7 @@ func getShortUrl(writer http.ResponseWriter, req *http.Request) {
 	url := entries[stub]
 
 	if url == "" {
-		http.Redirect(writer, req, "http://localhost:8000", http.StatusSeeOther)
+		http.Redirect(writer, req, "https://url-shortener-kohl.vercel.app/", http.StatusSeeOther)
 	} else {
 		http.Redirect(writer, req, url, http.StatusSeeOther)
 	}
