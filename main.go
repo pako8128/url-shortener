@@ -21,7 +21,7 @@ func initRandString() {
 func randString(length int) string {
 	bytes := make([]byte, length)
 	for i := range bytes {
-		bytes[i] = letters[rand.Int63() % int64(len(letters))]
+		bytes[i] = letters[rand.Int63()%int64(len(letters))]
 	}
 	return string(bytes)
 }
@@ -33,7 +33,16 @@ type Entry struct {
 
 var entries map[string]string
 
+func setupHeaders(writer *http.ResponseWriter) {
+	(*writer).Header().Set("Access-Control-Allow-Origin", "*")
+	(*writer).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*writer).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	(*writer).Header().Add("Content-Type", "application/json")
+}
+
 func newShortUrl(writer http.ResponseWriter, req *http.Request) {
+	setupHeaders(&writer)
+
 	var entry Entry
 	err := json.NewDecoder(req.Body).Decode(&entry)
 	if err != nil {
@@ -46,24 +55,22 @@ func newShortUrl(writer http.ResponseWriter, req *http.Request) {
 
 	entries[entry.Stub] = entry.Url
 
-	writer.Header().Add("Content-Type", "application/json")
-	writer.Header().Add("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(writer).Encode(entry)
 }
 
 func getShortUrl(writer http.ResponseWriter, req *http.Request) {
+	setupHeaders(&writer)
+
 	var entry Entry
 	entry.Stub = mux.Vars(req)["stub"]
 
 	entry.Url = entries[entry.Stub]
 
-	writer.Header().Add("Content-Type", "application/json")
-	writer.Header().Add("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(writer).Encode(entry)
 }
 
 func main() {
-	entries = make(map[string]string);
+	entries = make(map[string]string)
 
 	log.Println("Reading PORT from Environment")
 	port := os.Getenv("PORT")
@@ -83,7 +90,6 @@ func main() {
 	router.HandleFunc("/api/shorten/{stub}", getShortUrl).Methods("GET")
 	log.Println("[+] GET: /api/shorten/{stub}")
 
-
 	log.Printf("Starting server on %s\n", port)
-	log.Fatal(http.ListenAndServe(":" + port, router))
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
