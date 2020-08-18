@@ -6,7 +6,7 @@ COPY main.go go.mod ./
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo
 
 
-FROM heroku/heroku:latest
+FROM alpine:latest
 
 ENV HOME /app
 WORKDIR /app
