@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -62,6 +63,12 @@ func getShortUrl(writer http.ResponseWriter, req *http.Request) {
 func main() {
 	entries = make(map[string]string);
 
+	log.Println("Reading PORT from Environment")
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("PORT must be provided")
+	}
+
 	log.Println("Initializing Random String Generator")
 	initRandString()
 
@@ -74,8 +81,7 @@ func main() {
 	router.HandleFunc("/api/shorten/{stub}", getShortUrl).Methods("GET")
 	log.Println("[+] GET: /api/shorten/{stub}")
 
-	port := ":8000"
 
 	log.Printf("Starting server on %s\n", port)
-	log.Fatal(http.ListenAndServe(port, router))
+	log.Fatal(http.ListenAndServe(":" + port, router))
 }
