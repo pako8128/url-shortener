@@ -47,6 +47,7 @@ func newShortUrl(writer http.ResponseWriter, req *http.Request) {
 	entries[entry.Stub] = entry.Url
 
 	writer.Header().Add("Content-Type", "application/json")
+	writer.Header().Add("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(writer).Encode(entry)
 }
 
@@ -57,6 +58,7 @@ func getShortUrl(writer http.ResponseWriter, req *http.Request) {
 	entry.Url = entries[entry.Stub]
 
 	writer.Header().Add("Content-Type", "application/json")
+	writer.Header().Add("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(writer).Encode(entry)
 }
 
