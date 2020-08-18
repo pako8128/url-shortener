@@ -3,10 +3,27 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
+
+const stubLength = 6
+const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func initRandString() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+func randString(length int) string {
+	bytes := make([]byte, length)
+	for i := range bytes {
+		bytes[i] = letters[rand.Int63() % int64(len(letters))]
+	}
+	return string(bytes)
+}
 
 type Entry struct {
 	Stub string `json:"stub"`
@@ -20,6 +37,10 @@ func newShortUrl(writer http.ResponseWriter, req *http.Request) {
 	err := json.NewDecoder(req.Body).Decode(&entry)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if entry.Stub == "" || entries[entry.Stub] != "" {
+		entry.Stub = randString(stubLength)
 	}
 
 	entries[entry.Stub] = entry.Url
@@ -40,6 +61,9 @@ func getShortUrl(writer http.ResponseWriter, req *http.Request) {
 
 func main() {
 	entries = make(map[string]string);
+
+	log.Println("Initializing Random String Generator")
+	initRandString()
 
 	log.Println("Initializing Router")
 	router := mux.NewRouter()
