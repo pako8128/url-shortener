@@ -80,7 +80,7 @@ func main() {
 	log.Println("Setting up Routes")
 	router.HandleFunc("/api/shorten", newShortUrl).Methods("POST")
 	log.Println("[+] POST: /api/shorten")
-	router.HandleFunc("/api/shorten/{stub}", getShortUrl).Methods("GET")
+	router.HandleFunc("/{stub}", getShortUrl).Methods("GET")
 	log.Println("[+] GET: /{stub}")
 
 	log.Println("Wrapping Router with CORS Handler")
