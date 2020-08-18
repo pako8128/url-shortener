@@ -52,13 +52,14 @@ func newShortUrl(writer http.ResponseWriter, req *http.Request) {
 }
 
 func getShortUrl(writer http.ResponseWriter, req *http.Request) {
-	var entry Entry
-	entry.Stub = mux.Vars(req)["stub"]
+	stub := mux.Vars(req)["stub"]
+	url := entries[stub]
 
-	entry.Url = entries[entry.Stub]
-
-	writer.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(writer).Encode(entry)
+	if url == "" {
+		http.Redirect(writer, req, "http://localhost:8000", http.StatusSeeOther)
+	} else {
+		http.Redirect(writer, req, url, http.StatusSeeOther)
+	}
 }
 
 func main() {
@@ -80,13 +81,13 @@ func main() {
 	router.HandleFunc("/api/shorten", newShortUrl).Methods("POST")
 	log.Println("[+] POST: /api/shorten")
 	router.HandleFunc("/api/shorten/{stub}", getShortUrl).Methods("GET")
-	log.Println("[+] GET: /api/shorten/{stub}")
+	log.Println("[+] GET: /{stub}")
 
 	log.Println("Wrapping Router with CORS Handler")
 	wrapper := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:8000"},
 		AllowedHeaders: []string{"Content-Type", "Accept-Encoding", "Accept-Language", "DNT"},
-		Debug: true,
+		Debug:          true,
 	})
 	handler := wrapper.Handler(router)
 
