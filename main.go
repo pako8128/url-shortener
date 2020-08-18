@@ -84,7 +84,7 @@ func main() {
 
 	log.Println("Wrapping Router with CORS Handler")
 	wrapper := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
+		AllowedOrigins: []string{"http://localhost:8000"},
 		AllowedHeaders: []string{"Content-Type", "Accept-Encoding", "Accept-Language", "DNT"},
 	})
 	handler := wrapper.Handler(router)
