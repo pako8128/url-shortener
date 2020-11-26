@@ -6,11 +6,8 @@ COPY main.go go.mod ./
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo
 
 
-FROM alpine:latest
+FROM scratch
 
-ENV HOME /app
-WORKDIR /app
-RUN useradd -m heroku
-USER heroku
+ENV PORT 6666
 COPY --from=builder /usr/src/url-shortener /app/
-CMD /app/url-shortener
+ENTRYPOINT ["/app/url-shortener"]
